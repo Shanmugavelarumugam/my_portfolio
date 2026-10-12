@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "shanmugavel-2e674"
+  },
+  "targets": {
+    "shanmugavel-2e674": {
+      "hosting": {
+        "portfolio": [
+          "shanmugavel"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

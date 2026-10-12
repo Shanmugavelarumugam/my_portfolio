@@ -1,26 +1,366 @@
 @import "tailwindcss";
+@import "../styles/design-tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Class-based dark mode — themes switch via `.dark` on <html> (next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  scroll-behavior: smooth;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Sticky navbar should never cover a section heading */
+section[id] {
+  scroll-margin-top: 88px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes mobile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mobile-menu-panel {
+  animation: mobile-menu-in 0.18s ease-out;
+  transform-origin: top center;
+}
+
+/* ---- Scroll reveal (About + reusable) ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Heading underline grows when the heading reveals */
+.reveal .about-underline {
+  transform: scaleX(0);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+
+.reveal.is-visible .about-underline {
+  transform: scaleX(1);
+}
+
+/* Skill icons gently scale in with their cards — single entrance only */
+.reveal .skill-icon {
+  transform: scale(0.9);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-visible .skill-icon {
+  transform: scale(1);
+}
+
+/* Timeline line draws top → bottom when the section reveals */
+.reveal .timeline-line {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+
+.reveal.is-visible .timeline-line {
+  transform: scaleY(1);
+}
+
+/* Content stays visible when JS is disabled */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal .about-underline {
+    transform: scaleX(1);
+  }
+  .reveal .skill-icon {
+    transform: scale(1);
+  }
+  .reveal .timeline-line {
+    transform: scaleY(1);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.dark body {
+  background: #070b14;
+  color: #f1f5f9;
+}
+
+.font-brand {
+  font-family: var(--font-brand), cursive;
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+  font-weight: 900;
+}
+
+/* ---- Hero entrance (staggered fade-up) ---- */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-portrait-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes hero-orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, -30px, 0) scale(1.08);
+  }
+}
+
+@keyframes hero-scroll-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+.hero-anim {
+  opacity: 0;
+  animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-portrait {
+  opacity: 0;
+  animation: hero-portrait-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.35s;
+}
+
+.hero-orb {
+  animation: hero-orb-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-scroll-hint {
+  animation: hero-scroll-hint 2.2s ease-in-out infinite;
+}
+
+/* Name underline: left-to-right reveal, plays once as the name appears */
+@keyframes hero-underline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.hero-underline {
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: hero-underline-draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+/* Profile card: gentle 6px float, 6s ease-in-out loop */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Floating badges: very small drifts at different speeds (translate
+   property keeps Tailwind rotate classes intact) */
+@keyframes hero-badge-drift-a {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes hero-badge-drift-b {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 3px;
+  }
+}
+
+.hero-badge-a {
+  animation: hero-badge-drift-a 4s ease-in-out infinite;
+}
+
+.hero-badge-b {
+  animation: hero-badge-drift-b 5s ease-in-out infinite;
+}
+
+/* Reduce decorative floating on small screens */
+@media (max-width: 1023.5px) {
+  .hero-float,
+  .hero-badge-a,
+  .hero-badge-b {
+    animation: none;
+  }
+}
+
+/* ---- Infinite Marquee Animations ---- */
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marquee-right 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 35s linear infinite;
+  will-change: transform;
+}
+
+.pause-on-hover:hover {
+  animation-play-state: paused !important;
+}
+
+/* Navbar segment thumb glow — matches the previous active-pill shadow */
+.navbar-segment .rubber-segment__thumb {
+  box-shadow: 0 2px 14px rgba(121, 82, 245, 0.45);
+}
+
+/* ---- Loading screen ---- */
+@keyframes loading-bar-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.loading-bar {
+  animation: loading-bar-slide 1.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-right,
+  .animate-marquee-left {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-anim,
+  .hero-portrait {
+    opacity: 1;
+    animation: none;
+  }
+  .hero-underline {
+    transform: none;
+    animation: none;
+  }
+  .hero-float,
+  .hero-badge-a,
+  .hero-badge-b {
+    animation: none;
+  }
+  .hero-orb,
+  .hero-scroll-hint,
+  .mobile-menu-panel {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .reveal .about-underline {
+    transform: scaleX(1);
+    transition: none;
+  }
+  .reveal .skill-icon {
+    transform: scale(1);
+    transition: none;
+  }
+  .reveal .timeline-line {
+    transform: scaleY(1);
+    transition: none;
+  }
+  .loading-bar,
+  .loading-ring {
+    animation: none;
+  }
+  .project-card,
+  .project-visual {
+    transition: none;
+  }
+  .project-card:hover {
+    transform: none;
+  }
+  .group:hover .project-visual {
+    transform: none;
+  }
 }

@@ -1,0 +1,13 @@
+:root {
+  --hero-bg: #070b14;
+  --hero-bg-soft: #0a0f1e;
+  --hero-foreground: #f1f5f9;
+  --hero-muted: #94a3b8;
+  --hero-accent: #38bdf8;
+  --hero-accent-2: #818cf8;
+  --hero-ring: rgba(56, 189, 248, 0.35);
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.3);
+}
